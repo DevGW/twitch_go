@@ -173,7 +173,35 @@ def create_github_release(version, archive_path):
         print("ERROR: Not authenticated with GitHub CLI. Run: gh auth login")
         return False
     
-    # Create release
+    # Check if release already exists for this tag
+    try:
+        result = subprocess.run(
+            ["gh", "release", "view", f"v{version}"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result.returncode == 0:
+            # Release exists, ask to upload asset
+            response = input(f"Release v{version} already exists. Upload asset to existing release? [y/N]: ")
+            if response.lower() != "y":
+                print("Skipping release update")
+                return False
+            # Upload asset to existing release
+            try:
+                subprocess.run(
+                    ["gh", "release", "upload", f"v{version}", str(archive_path), "--clobber"],
+                    check=True
+                )
+                print(f"✓ Uploaded {archive_path.name} to existing release v{version}")
+                return True
+            except subprocess.CalledProcessError as e:
+                print(f"ERROR: Failed to upload asset: {e}")
+                return False
+    except FileNotFoundError:
+        pass  # gh command failed, continue to create new release
+    
+    # Create new release
     release_notes = f"""# Release v{version}
 
 Built on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -202,6 +230,7 @@ Download the archive for your platform and extract the executable.
         return True
     except subprocess.CalledProcessError as e:
         print(f"ERROR: Failed to create release: {e}")
+        print(f"Error details: {e.stderr if hasattr(e, 'stderr') else 'Unknown error'}")
         return False
 
 def bump_version(current_version, bump_type):
