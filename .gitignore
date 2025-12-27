@@ -9,3 +9,4 @@ dist
 releases
 config.yaml
 twitch-go.spec
+.historic_files/merge_presets.py
