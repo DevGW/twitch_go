@@ -1,0 +1,11 @@
+.env
+.twitch_tokens.json
+.cursor
+.idea
+.dist
+.historic_files
+build
+dist
+releases
+config.yaml
+twitch-go.spec

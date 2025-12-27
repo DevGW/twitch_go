@@ -1,0 +1,14 @@
+[project]
+name = "twitch-go"
+version = "0.1.1"
+description = "One-command Twitch + OBS go-live tool"
+requires-python = ">=3.10"
+dependencies = [
+  "requests",
+  "python-dotenv",
+  "pyyaml",
+  "obsws-python"
+]
+
+[project.scripts]
+twitch-go = "twitch_go:main"
